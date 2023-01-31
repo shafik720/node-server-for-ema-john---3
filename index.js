@@ -14,12 +14,24 @@ require('dotenv').config();
 // mongodb functionality
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.ydjbhxm.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-client.connect(err => {
-    console.log('Mongodb Connected');
-  const collection = client.db("test").collection("devices");
-  // perform actions on the collection object
-  client.close();
-});
+
+async function run(){
+    try{
+        console.log(uri);
+        await client.connect();
+        const productCollections = client.db('emaJohn').collection('emaJohnFirst');
+
+        app.get('/product',async(req, res)=>{
+            const query = {};
+            const cursor = productCollections.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+    }
+    finally{}
+}
+
+run().catch(console.dir);
 
 
 app.get('/',(req,res)=>{
