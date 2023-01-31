@@ -21,11 +21,20 @@ async function run(){
         await client.connect();
         const productCollections = client.db('emaJohn').collection('emaJohnFirst');
 
+        // getting all the product
         app.get('/product',async(req, res)=>{
             const query = {};
             const cursor = productCollections.find(query);
             const result = await cursor.toArray();
             res.send(result);
+        })
+
+        // getting product quantity
+        app.get('/productQuantity', async(req, res)=>{
+            const query = {};
+            const cursor = productCollections.find(query);
+            const result = await cursor.count();
+            res.send({result});
         })
     }
     finally{}
