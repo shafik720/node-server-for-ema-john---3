@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 5000;
 const cors = require ('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 //middleware
@@ -22,7 +22,7 @@ async function run(){
 
         // getting all the product
         app.get('/product',async(req, res)=>{
-            
+
             const page = parseInt(req.query.page);
             const size = parseInt(req.query.size);
 
@@ -30,7 +30,7 @@ async function run(){
             const query = {};
             const cursor = productCollections.find(query);
             if(page || size){
-                result = await cursor.skip(page * 10).limit(size).toArray();
+                result = await cursor.skip(page * size).limit(size).toArray();
             }else{
                 result = await cursor.toArray();
             }
@@ -44,6 +44,16 @@ async function run(){
             const cursor = productCollections.find(query);
             const result = await cursor.count();
             res.send({result});
+        })
+
+        // get product by keys
+        app.post('/productByKeys', async(req,res)=>{
+            const keys = req.body;
+            const ids = keys.map(index=>ObjectId(index));
+            const query = {_id : {$in : ids}}
+            const cursor = productCollections.find(query);
+            const products = await cursor.toArray();
+            res.send(products);
         })
     }
     finally{}
