@@ -17,20 +17,29 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 async function run(){
     try{
-        console.log(uri);
         await client.connect();
         const productCollections = client.db('emaJohn').collection('emaJohnFirst');
 
         // getting all the product
         app.get('/product',async(req, res)=>{
+            
+            const page = parseInt(req.query.page);
+            const size = parseInt(req.query.size);
+
+            let result;
             const query = {};
             const cursor = productCollections.find(query);
-            const result = await cursor.toArray();
+            if(page || size){
+                result = await cursor.skip(page * 10).limit(size).toArray();
+            }else{
+                result = await cursor.toArray();
+            }
+            
             res.send(result);
         })
 
         // getting product quantity
-        app.get('/productQuantity', async(req, res)=>{
+        app.get('/productCount', async(req, res)=>{
             const query = {};
             const cursor = productCollections.find(query);
             const result = await cursor.count();
